@@ -19,74 +19,66 @@ import javax.servlet.http.HttpSession;
  * @author 841898
  */
 public class ShoppingListServlet extends HttpServlet {
-ArrayList <String> itemList = new ArrayList<>();
 
-     
+    ArrayList<String> itemList = new ArrayList<>();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-     getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+
         HttpSession session = request.getSession();
-         String username = (String) session.getAttribute("username");
-         request.setAttribute("username", username);
-         System.out.println("username session: " + username);
-        
-        
-     getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").forward(request,response);
+        String username = (String) session.getAttribute("username");
+        request.setAttribute("username", username);
+        System.out.println("username session: " + username);
+
+        if (username == null || username.equals("")) {
+            getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+            return;
+
+        } else {
+            String action = request.getParameter("action");
+
+            if (action != null && action.equals("logout")) {
+                session.invalidate();
+                session = request.getSession();
+                getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").forward(request, response);
+                return;
+            }
+
+            request.setAttribute("itemList", itemList);
+
+        }
+        getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").forward(request, response);
+
     }
 
-    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-         HttpSession session = request.getSession();
-          String usernameFromSession = (String) session.getAttribute("username");
-          
-          String action = request.getParameter("action");
-          session.setAttribute("action", action);
-          
-          if (action.equals("register")){
-//          if (usernameFromSession == null || usernameFromSession.equals("")){
-              String username = request.getParameter("username");
-              session.setAttribute("username", username);
-              request.setAttribute("usernameFromSession", username);
-          } else if (action.equals("add")){
-              request.setAttribute("username", usernameFromSession);
-              String item = request.getParameter("item");
-//               itemList = new ArrayList();
-               itemList.add(item);
-               request.setAttribute("itemList", itemList);
+        HttpSession session = request.getSession();
+        String usernameFromSession = (String) session.getAttribute("username");
 
-           } else if (action.equals("delete")){
-               String selectedItem = request.getParameter("item");
-               itemList.remove(selectedItem);
-                request.setAttribute("itemList", itemList);
-//              request.setAttribute("username", usernameFromSession);
-//              String item = request.getParameter("item");
-////               itemList = new ArrayList();
-//               itemList.add(item);
-//               request.setAttribute("itemList", itemList);
-         
-          }
-                     
-//               if (item != null || !item.equals("")){
-//                   itemList.add(item);
-                   
-               
-          
-         
-//         System.out.println("username" + username);
-         
-         
-         
-         getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").forward(request,response);
-         
-//         System.out.println("action" + action);
-         
+        String action = request.getParameter("action");
+        session.setAttribute("action", action);
+
+        if (action.equals("register")) {
+            String username = request.getParameter("username");
+            session.setAttribute("username", username);
+            request.setAttribute("usernameFromSession", username);
+        } else if (action.equals("add")) {
+            request.setAttribute("username", usernameFromSession);
+            String item = request.getParameter("item");
+            itemList.add(item);
+            request.setAttribute("itemList", itemList);
+
+        } else if (action.equals("delete")) {
+            String selectedItem = request.getParameter("item");
+            itemList.remove(selectedItem);
+            request.setAttribute("itemList", itemList);
+        }
+
+        getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").forward(request, response);
+
     }
 }
-
-
-
